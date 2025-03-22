@@ -4,6 +4,9 @@ import Landing from './Landing';
 import UserProfile from './UserProfile'
 import Dashboard from './Dashboard'
 import './App.css';
+import Register from './Register';
+import Login from './Login';
+import PrivateRoute from './PrivateRoute';
 
 function App() {
 
@@ -11,8 +14,10 @@ function App() {
     <Router>
     <Routes>
       <Route path="/" element={<Landing />} /> 
-      <Route path="/Dashboard" element={<Dashboard/>} /> 
+      <Route path="/Dashboard" element={ <PrivateRoute><Dashboard/> </PrivateRoute>} /> 
       <Route path="/UserProfile" element={<UserProfile />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
   </Router>
   );
