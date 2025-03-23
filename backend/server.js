@@ -68,7 +68,7 @@ app.post('/login', (req, res) => {
       }
   
       // Generate a JWT token with the user ID and a secret key, valid for 3 hour
-      const token = jwt.sign({ username: user.username }, 'your_jwt_secret', { expiresIn: '3h' });
+      const token = jwt.sign({ username: user.username, userID: user.userID }, 'your_jwt_secret', { expiresIn: '3h' });
   
       // Send the JWT token as the response
       res.json({ token });
@@ -84,7 +84,49 @@ const authenticateToken = (req, res, next) => {
     // Verify the JWT token
     jwt.verify(token, 'your_jwt_secret', (err, user) => {
       if (err) return res.status(403).json({ message: 'Invalid token' });  // If the token is invalid, send a 403 error
-      req.user = user;  // Store the decoded user data in the request object
+      req.user = user; // Store the decoded user data in the request object
       next();  // Proceed to the next middleware/route handler
     });
   };
+
+  app.post('/friendRequest', async (req, res) => {
+    try {
+      const { senderId, receiverId } = req.body;
+
+      if (senderId === receiverId) {
+        return res.status(400).json({ message: 'You cannot send a friend request to yourself' });
+      }
+
+      await db.query(
+        'INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)',
+        [senderId, receiverId]
+      );
+      res.status(201).json({ message: 'Friend request sent' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to send friend request' });
+    }
+  });
+
+
+app.get('/friendslist/:userId', (req, res) => {
+    const { userId } = req.params;  // Extract userId from the URL parameter
+  
+    // Query to fetch friends based on userId
+    db.query(
+      `SELECT u.username
+       FROM friendships f
+       JOIN users u ON 
+         (f.userID1 = ? AND f.userID2 = u.userID) OR 
+         (f.userID2 = ? AND f.userID1 = u.userID)`,
+      [userId, userId],
+      (err, results) => {
+        if (err) {
+          // Handle error and send appropriate response
+          return res.status(500).json({ message: 'Failed to fetch friends list', error: err });
+        }
+        // Send results (friends list) as the response
+        res.json(results);
+      }
+    );
+  });

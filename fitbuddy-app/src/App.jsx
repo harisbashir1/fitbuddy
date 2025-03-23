@@ -6,6 +6,7 @@ import Dashboard from './Dashboard'
 import './App.css';
 import Register from './Register';
 import Login from './Login';
+import Friends from './friends'
 import PrivateRoute from './PrivateRoute';
 
 function App() {
@@ -18,6 +19,8 @@ function App() {
       <Route path="/UserProfile" element={<UserProfile />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/friends" element={<Friends />} />
+
     </Routes>
   </Router>
   );

@@ -8,6 +8,7 @@ const Profile = () => {
           <nav>
             <ul>
               <li><Link to="/Dashboard">Home</Link></li>
+              <li><Link to="/Friends">Friends</Link></li>
             </ul>
           </nav>
         </header>

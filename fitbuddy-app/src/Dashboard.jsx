@@ -20,6 +20,10 @@ const [username, setUsername] = useState(null);
     localStorage.removeItem('token'); // Remove token from local storage
     navigate('/'); // Redirect to landing page
   };
+
+
+
+
   
     return (
       <div>
@@ -27,6 +31,7 @@ const [username, setUsername] = useState(null);
           <nav>
             <ul>
               <li><Link to="/UserProfile">Profile</Link></li>
+              <li><Link to="/Friends">Friends</Link></li>
               <li><button onClick={handleLogout}>Logout</button></li>
             </ul>
           </nav>
