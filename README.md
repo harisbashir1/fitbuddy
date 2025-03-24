@@ -14,7 +14,6 @@ First, clone or download this project to your local machine.
 
 ### Step 2: Set Up the Backend (Express & MySQL)
 ### -Make sure MySQL service is running before proceeding. You can use XAMPP, MAMP, or MySQL Workbench to start the MySQL service.
-### Note: The trigger creation queries were tested with XAMPP and phpMyAdmin,
 
 1. **Navigate to the `backend` directory**:
 
