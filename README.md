@@ -9,7 +9,7 @@ First, clone or download this project to your local machine.
 
    https://github.com/harisbashir1/fitbuddy.git
 
-   git@github.com:harisbashir1/PrinciplesWebTech_Project3.git
+   git@github.com:harisbashir1/fitbuddy.git
 
 
 ### Step 2: Set Up the Backend (Express & MySQL)
