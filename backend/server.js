@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const PORT = 5050;
+const PORT = 5051;
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -92,12 +92,12 @@ const authenticateToken = (req, res, next) => {
   app.post('/friendRequest', async (req, res) => {
     try {
       const { senderId, receiverId } = req.body;
-
+      console.log(senderId, receiverId);
       if (senderId === receiverId) {
         return res.status(400).json({ message: 'You cannot send a friend request to yourself' });
       }
 
-      await db.query(
+      db.query(
         'INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)',
         [senderId, receiverId]
       );
@@ -108,13 +108,83 @@ const authenticateToken = (req, res, next) => {
     }
   });
 
+  app.get('/friendRequests/:userId', (req, res) => {
+    const { userId } = req.params;
+  
+    db.query(
+      `SELECT fr.sender_id AS userID, u.username
+       FROM friend_requests fr
+       JOIN users u ON fr.sender_id = u.userID
+       WHERE fr.receiver_id = ?  AND fr.status = 'pending'`,
+      [userId],
+      (err, results) => {
+        if (err) {
+          console.error('Error fetching friend requests:', err);
+          return res.status(500).json({ message: 'Server error' });
+        }
+        res.json(results);
+      }
+    );
+  });
+
+  // Reject Friend Request
+app.post('/rejectFriendRequest', (req, res) => {
+  const { senderId, receiverId } = req.body;
+
+  // Update friend request status to 'rejected'
+  db.query(
+    'UPDATE friend_requests SET status = "rejected" WHERE sender_id = ? AND receiver_id = ?',
+    [senderId, receiverId],
+    (err, results) => {
+      if (err) {
+        console.error('Error rejecting friend request:', err);
+        return res.status(500).json({ message: 'Error rejecting friend request' });
+      }
+
+      res.status(200).json({ message: 'Friend request rejected' });
+    }
+  );
+});
+
+// Accept Friend Request
+app.post('/acceptFriendRequest', (req, res) => {
+  const { senderId, receiverId } = req.body;
+
+  // Update friend request status to 'accepted'
+  db.query(
+    'UPDATE friend_requests SET status = "accepted" WHERE sender_id = ? AND receiver_id = ?',
+    [senderId, receiverId],
+    (err, results) => {
+      if (err) {
+        console.error('Error accepting friend request:', err);
+        return res.status(500).json({ message: 'Error accepting friend request' });
+      }
+
+      // Create a new friendship record in the 'friendships' table
+      db.query(
+        'INSERT INTO friendships (userID1, userID2) VALUES (?, ?)',
+        [senderId, receiverId],
+        (err, results) => {
+          if (err) {
+            console.error('Error creating friendship:', err);
+            return res.status(500).json({ message: 'Error creating friendship' });
+          }
+
+          res.status(200).json({ message: 'Friend request accepted and friendship created' });
+        }
+      );
+    }
+  );
+});
+
+
 
 app.get('/friendslist/:userId', (req, res) => {
     const { userId } = req.params;  // Extract userId from the URL parameter
   
     // Query to fetch friends based on userId
     db.query(
-      `SELECT u.username
+      `SELECT u.userID, u.username
        FROM friendships f
        JOIN users u ON 
          (f.userID1 = ? AND f.userID2 = u.userID) OR 
@@ -124,6 +194,25 @@ app.get('/friendslist/:userId', (req, res) => {
         if (err) {
           // Handle error and send appropriate response
           return res.status(500).json({ message: 'Failed to fetch friends list', error: err });
+        }
+        // Send results (friends list) as the response
+        res.json(results);
+      }
+    );
+  });
+
+  app.get('/searchUsers', (req, res) => {
+    const { username } = req.query;  // Extract userId from the URL parameter
+
+  
+    // Query to fetch friends based on userId
+    db.query(
+      `SELECT * FROM users WHERE username LIKE ?`,
+      [`%${username}%`],
+      (err, results) => {
+        if (err) {
+          // Handle error and send appropriate response
+          return res.status(500).json({ message: 'Failed to fetch user list', error: err });
         }
         // Send results (friends list) as the response
         res.json(results);

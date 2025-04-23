@@ -15,7 +15,7 @@ const Register = () => {
       setError('');
 
       try {
-        const res = await axios.post('http://localhost:5050/register', {
+        const res = await axios.post('http://localhost:5051/register', {
           username,
           firstName,
           lastName,
@@ -30,7 +30,9 @@ const Register = () => {
     };
 
     return (
-        <div>
+        <div className="login-container">
+          <div>
+          <h2>Register</h2>
         {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -79,6 +81,7 @@ const Register = () => {
         <br></br>
         <Link to="/">Return to Landing</Link>
         </p>
+        </div>
         </div>
     );
 };

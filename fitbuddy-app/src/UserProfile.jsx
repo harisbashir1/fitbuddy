@@ -11,6 +11,7 @@ const Profile = () => {
               <li><Link to="/Friends">Friends</Link></li>
             </ul>
           </nav>
+          <hr></hr>
         </header>
         <main>
           <h1>Profile</h1>

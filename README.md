@@ -82,7 +82,7 @@ CREATE TABLE `friend_requests` (
    ```bash
    npm start
    ```
-   The backend will run on `http://localhost:5050`.
+   The backend will run on `http://localhost:5051`.
 
 ### Step 3: Set Up the Frontend (React)
 

@@ -13,7 +13,7 @@ const Login = () => {
       setError('');
   
       try {
-        const res = await axios.post('http://localhost:5050/login', { username, password });
+        const res = await axios.post('http://localhost:5051/login', { username, password });
         localStorage.setItem('token', res.data.token); // Save JWT token in localStorage
         navigate('/dashboard'); // Redirect to dashboard after successful login
       } catch (err) {
@@ -23,6 +23,7 @@ const Login = () => {
 
     return (
         <div>
+          <div className='login-container'>
             <h2>Login</h2>
 
             {error && <p className="error" style={{ color: 'red' }}>{error}</p>}
@@ -55,6 +56,7 @@ const Login = () => {
         <br></br>
         <Link to="/">Return to Landing</Link>
         </p>
+        </div>
         </div>
   );
 };

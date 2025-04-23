@@ -8,9 +8,102 @@ nav ul{
     justify-content: space-evenly;
 }
 
+ul {
+    list-style-type:none;
+}
+
 nav li {
-    border: 1px solid black;
     padding: 10px;
     display: inline;
     justify-content: center;
+}
+
+nav a {
+    color: rgb(74, 70, 70);
+}
+nav a:visited {
+    color: rgb(74, 70, 70);
+}
+
+nav a:hover {
+    color: #a3b18a;
+}
+
+nav a {
+    font-size: larger;
+}
+
+
+
+
+p, h1, h2, h3, h4, h5, h6, li{
+    font-family: sans-serif;
+}
+
+nav ul li a{
+    text-decoration: none;
+}
+
+hr {
+    background-color: black;
+    height: 2px;
+    border: none;
+  }
+
+body {
+    max-width: 70%;
+    margin: auto;
+    padding: 45px;
+    border-radius: 10px;
+    background-color: white;
+    padding-bottom: 50%;
+}
+
+html {
+    background-color: #a3b18a;
+}
+
+
+.logout-button {
+    background-color: #35471f;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .logout-button:hover {
+    background-color: #283618;
+    transform: scale(1.03);
+  }
+  
+  .logout-button:active {
+    transform: scale(0.97);
+  }
+
+  .login-container {
+    max-width: 45%;
+    margin: auto;
+    border: 3px solid black;
+    padding: 3%;
+    border-radius: 10px;
+  }
+
+  form input, form button {
+    box-sizing: border-box;
+    width: 100%; 
+    padding: 10px;
+    margin: 5px 0;
+}
+
+.entry-form {
+    padding: 3%;
+    border: 1px solid black;
+    margin: auto;
+    max-width: 50%;
 }
