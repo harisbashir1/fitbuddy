@@ -32,7 +32,7 @@ useEffect(() => {
       }
 
       const dates = await response.json();
-      setWorkoutDates(dates); // Set the dates in state
+      setWorkoutDates(dates); 
     } catch (error) {
       console.error('Error fetching workout dates:', error);
       alert(error.message);
