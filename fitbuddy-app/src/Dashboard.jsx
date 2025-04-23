@@ -1,6 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode'; 
+import WorkoutCalendar from './workoutCalendar';
+
+
+
 
 const Dashboard = () => {
 const navigate = useNavigate();
@@ -9,24 +13,78 @@ const navigate = useNavigate();
 const [workoutType, setWorkoutType] = useState('');
 const [mood, setMood] = useState('');
 const [note, setNote] = useState('');
-const handleSubmit = (e) => {
+
+
+const [workoutDates, setWorkoutDates] = useState([]);
+useEffect(() => {
+  const fetchWorkoutDates = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:5051/getWorkoutDates', {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch workout dates.');
+      }
+
+      const dates = await response.json();
+      setWorkoutDates(dates); // Set the dates in state
+    } catch (error) {
+      console.error('Error fetching workout dates:', error);
+      alert(error.message);
+    }
+  };
+
+  fetchWorkoutDates();
+}, [navigate]);
+
+
+
+
+const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem('token');
 
     if (!workoutType) {
       alert('Workout type is required');
       return;
     }
-
-    console.log({
-      workoutType,
-      mood: mood || null,
-      note: note || null,
-    });
-
-    // Clear form after submission
-    setWorkoutType('');
-    setMood('');
-    setNote('');
+    try {
+      const response = await fetch('http://localhost:5051/logWorkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({
+          workout_type: workoutType,
+          mood: mood || null,
+          note: note || null,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to log workout.');
+      }
+  
+      alert('Workout logged successfully!');
+  
+      // Clear form after submission
+      setWorkoutType('');
+      setMood('');
+      setNote('');
+  
+    } catch (error) {
+      console.error('Error submitting workout:', error);
+      alert(error.message);
+    }
   };
 
 const [username, setUsername] = useState(null);
@@ -48,8 +106,6 @@ const [username, setUsername] = useState(null);
 
 
 
-
-  
     return (
       <div>
         <header>
@@ -63,7 +119,10 @@ const [username, setUsername] = useState(null);
           <hr></hr>
         </header>
         <h1>Welcome {username}, Here is the Dashboard.</h1>
-        <h2>It is the protected page for when a user is directed to when authenticated</h2>
+
+        <h2>Workout Calendar</h2>
+        <WorkoutCalendar workoutDates={workoutDates} />
+        <h2>Log a workout</h2>
         <div className ="entry-form">
         <form onSubmit={handleSubmit}>
       {/* Workout Type */}

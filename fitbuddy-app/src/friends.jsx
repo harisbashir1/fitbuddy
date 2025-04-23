@@ -179,7 +179,6 @@ useEffect(() => {
           <hr></hr>
         </header>
         <h1>Welcome {username}, Here is the Friends Page.</h1>
-        <p>userID =  {userID} username = {username}</p>
         <h2>Friend Requests</h2>
         {incomingFriendRequests.length === 0 ? (
           <p>No pending friend requests.</p>

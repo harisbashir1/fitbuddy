@@ -219,3 +219,39 @@ app.get('/friendslist/:userId', (req, res) => {
       }
     );
   });
+
+
+  app.post('/logWorkout', authenticateToken, (req, res) => {
+    const {workout_type, mood, note} = req.body;
+    const userID = req.user.userID; 
+    const currentDate = new Date();
+    console.log(workout_type, mood, note, userID, currentDate);
+    db.query(`INSERT INTO workouts (workout_date, workout_type, mood, note, userID) VALUES (?, ?, ?, ?, ?)`,
+       [currentDate, workout_type, mood || null, note || null, userID ], (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: 'Failed to insert workout', error: err });
+      }
+      res.json(results);
+    });
+  });
+
+  app.get('/getWorkoutDates', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+  
+    db.query(
+      'SELECT workout_date FROM workouts WHERE userID = ?',
+      [userID],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ message: 'Failed to fetch workout dates', error: err });
+        }
+  
+        const dates = results.map(row => {
+          const dateObj = new Date(row.workout_date);
+          return dateObj.toISOString().split('T')[0];
+        });
+  
+        res.json(dates);
+      }
+    );
+  });
