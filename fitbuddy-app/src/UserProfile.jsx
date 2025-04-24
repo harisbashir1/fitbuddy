@@ -15,7 +15,7 @@ const Profile = () => {
         </header>
         <main>
           <h1>Profile</h1>
-          <h2>Here users can manage their goals and account settings</h2>
+          <h2>Set your goal</h2>
         </main>
       </div>
     );

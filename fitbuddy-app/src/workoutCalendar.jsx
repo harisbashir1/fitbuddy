@@ -1,7 +1,7 @@
 import React from 'react';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
-import { subDays, format } from 'date-fns';
+import {format } from 'date-fns';
 
 const WorkoutCalendar = ({ workoutDates }) => {
     const currentYear = new Date().getFullYear();
@@ -21,9 +21,9 @@ const WorkoutCalendar = ({ workoutDates }) => {
         return 'color-github-4'; // Adjust intensity if needed
       }}
       tooltipDataAttrs={value => ({
+        
         'data-tip': value.date ? `Workout on ${format(new Date(value.date), 'MMM d')}` : '',
       })}
-      showWeekdayLabels={false}
     />
   );
 };

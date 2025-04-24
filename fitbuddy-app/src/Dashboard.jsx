@@ -119,9 +119,11 @@ const [username, setUsername] = useState(null);
           <hr></hr>
         </header>
         <h1>Welcome {username}, Here is the Dashboard.</h1>
-
+        <div class="card-container">
         <h2>Workout Calendar</h2>
         <WorkoutCalendar workoutDates={workoutDates} />
+        </div>
+        <div class="card-container">
         <h2>Log a workout</h2>
         <div className ="entry-form">
         <form onSubmit={handleSubmit}>
@@ -161,6 +163,10 @@ const [username, setUsername] = useState(null);
       {/* Submit Button */}
       <button type="submit">Log Workout</button>
     </form>
+    </div>
+    </div>
+    <div className="card-container">
+        <h2>Filter Data</h2>
     </div>
       </div>
     );

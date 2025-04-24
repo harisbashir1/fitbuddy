@@ -236,7 +236,7 @@ app.get('/friendslist/:userId', (req, res) => {
   });
 
   app.get('/getWorkoutDates', authenticateToken, (req, res) => {
-    const userID = req.user.userID;
+    const userID = req.query.friendID || req.user.userID;
   
     db.query(
       'SELECT workout_date FROM workouts WHERE userID = ?',
@@ -254,4 +254,16 @@ app.get('/friendslist/:userId', (req, res) => {
         res.json(dates);
       }
     );
+  });
+
+
+  app.get('/friendProfile/:friendID', authenticateToken, (req, res) => {
+    const { friendID } = req.params;
+  
+    db.query('SELECT username FROM users WHERE userID = ?', [friendID], (err, results) => {
+      if (err) return res.status(500).json({ error: 'Error retrieving profile' });
+      if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+  
+      res.json(results[0]);
+    });
   });

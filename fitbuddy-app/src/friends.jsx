@@ -170,15 +170,11 @@ useEffect(() => {
     return (
       <div>
         <header>
-          <nav>
-            <ul>
-            <li><Link to="/Dashboard">Home</Link></li>
-              <li><Link to="/UserProfile">Profile</Link></li>
-            </ul>
-          </nav>
+
           <hr></hr>
         </header>
         <h1>Welcome {username}, Here is the Friends Page.</h1>
+        <div className='card-container'>
         <h2>Friend Requests</h2>
         {incomingFriendRequests.length === 0 ? (
           <p>No pending friend requests.</p>
@@ -193,7 +189,8 @@ useEffect(() => {
             ))}
           </ul>
         )}
-
+        </div>
+        <div className='card-container'>
         <h2>Add a friend</h2>
         <input
         type="text"
@@ -227,17 +224,24 @@ useEffect(() => {
     </ul>
   </div>
   )}
-        <h2>My friends list</h2>
+  </div>
+  <div className='card-container'>
+        <h2>Friends</h2>
         {friends.length === 0 ? (
         <p>No friends found.</p>
       ) : (
         <ul>
           {friends.map((friend) => (
-            <li key={friend.userID}>{friend.username}</li>
+              <li key={friend.userID}>
+              <Link to={`/FriendProfile/${friend.userID}`} className='item-list'>{friend.username}</Link>
+            </li>
           ))}
         </ul>
       )}
       </div>
+      </div>
+
+
     );
     };
     

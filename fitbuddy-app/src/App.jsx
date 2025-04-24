@@ -8,6 +8,7 @@ import Register from './Register';
 import Login from './Login';
 import Friends from './friends'
 import PrivateRoute from './PrivateRoute';
+import FriendProfile from './friendProfile';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/friends" element={<Friends />} />
+      <Route path="/FriendProfile/:friendID" element={<FriendProfile />} />
 
     </Routes>
   </Router>

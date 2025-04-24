@@ -75,6 +75,27 @@ CREATE TABLE `friend_requests` (
     -- Foreign key constraints
     CONSTRAINT `fk_sender` FOREIGN KEY (`sender_id`) REFERENCES `users`(`userID`) ON DELETE CASCADE,
     CONSTRAINT `fk_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `users`(`userID`) ON DELETE CASCADE
+
+
+    CREATE TABLE `workouts` (
+  `workout_id` int(11) NOT NULL,
+  `workout_date` datetime NOT NULL,
+  `workout_type` varchar(50) NOT NULL,
+  `mood` int(1) DEFAULT NULL CHECK (`mood` between 1 and 5),
+  `note` text DEFAULT NULL,
+  `userID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `workouts`
+  ADD PRIMARY KEY (`workout_id`),
+  ADD KEY `fk_user` (`userID`);
+
+  ALTER TABLE `workouts`
+  MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+  ALTER TABLE `workouts`
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE;
+
 );
 ```
 4. **Start the backend server (ensuring you are still in backend directory)**:
