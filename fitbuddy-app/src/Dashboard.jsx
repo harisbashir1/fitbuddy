@@ -169,7 +169,8 @@ const [username, setUsername] = useState(null);
         <WorkoutCalendar workoutDates={workoutDates} />
         </div>
         <div class="card-container">
-        <h2>Log a workout</h2>
+        <h2>Log today's workout</h2>
+        <h3>Congrats on checking in!</h3>
         <div className ="entry-form">
         <form onSubmit={handleSubmit}>
       <div >

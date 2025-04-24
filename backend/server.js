@@ -180,26 +180,39 @@ app.post('/acceptFriendRequest', (req, res) => {
 
 
 app.get('/friendslist/:userId', (req, res) => {
-    const { userId } = req.params;  // Extract userId from the URL parameter
+  const { userId } = req.params;
   
-    // Query to fetch friends based on userId
-    db.query(
-      `SELECT u.userID, u.username
-       FROM friendships f
-       JOIN users u ON 
-         (f.userID1 = ? AND f.userID2 = u.userID) OR 
-         (f.userID2 = ? AND f.userID1 = u.userID)`,
-      [userId, userId],
-      (err, results) => {
-        if (err) {
-          // Handle error and send appropriate response
-          return res.status(500).json({ message: 'Failed to fetch friends list', error: err });
-        }
-        // Send results (friends list) as the response
-        res.json(results);
+  db.query(
+    `SELECT u.userID, u.username
+     FROM friendships f
+     JOIN users u ON 
+       (f.userID1 = ? AND f.userID2 = u.userID) OR 
+       (f.userID2 = ? AND f.userID1 = u.userID)`,
+    [userId, userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: 'Failed to fetch friends list', error: err });
       }
-    );
-  });
+      const friendsList = results;
+
+      db.query(
+        `SELECT COUNT(*) AS friendCount
+         FROM friendships f
+         WHERE f.userID1 = ? OR f.userID2 = ?`,
+        [userId, userId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: 'Failed to fetch friend count', error: err });
+          }
+
+          const friendCount = results[0].friendCount || 0;
+
+          res.json({ friendsList, friendCount });
+        }
+      );
+    }
+  );
+});
 
   app.get('/searchUsers', (req, res) => {
     const { username } = req.query;  // Extract userId from the URL parameter
@@ -462,41 +475,53 @@ app.get('/friendslist/:userId', (req, res) => {
     const userID = req.user.userID;
     
     const query = `
-      SELECT 
-        friend.userID,
-        friend.username,
-        friend_lifts.bench,
-        (
+   SELECT 
+      friend.userID,
+      friend.username,
+      friend_lifts.bench,
+      CASE 
+        WHEN friend_lifts.bench IS NULL THEN NULL
+        ELSE (
           SELECT COUNT(*) + 1 
           FROM profile_lifts pl
           JOIN users u ON pl.userID = u.userID
           JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.bench > friend_lifts.bench
-        ) AS bench_rank,
-        friend_lifts.squat,
-        (
+          WHERE pl.bench > friend_lifts.bench AND pl.bench IS NOT NULL
+        )
+      END AS bench_rank,
+      
+      friend_lifts.squat,
+      CASE 
+        WHEN friend_lifts.squat IS NULL THEN NULL
+        ELSE (
           SELECT COUNT(*) + 1 
           FROM profile_lifts pl
           JOIN users u ON pl.userID = u.userID
           JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.squat > friend_lifts.squat
-        ) AS squat_rank,
-        friend_lifts.deadlift,
-        (
+          WHERE pl.squat > friend_lifts.squat AND pl.squat IS NOT NULL
+        )
+      END AS squat_rank,
+
+      friend_lifts.deadlift,
+      CASE 
+        WHEN friend_lifts.deadlift IS NULL THEN NULL
+        ELSE (
           SELECT COUNT(*) + 1 
           FROM profile_lifts pl
           JOIN users u ON pl.userID = u.userID
           JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.deadlift > friend_lifts.deadlift
-        ) AS deadlift_rank
-      FROM 
-        users friend
-      JOIN 
-        profile_lifts friend_lifts ON friend.userID = friend_lifts.userID
-      JOIN 
-        friendships f ON (f.userID1 = ? AND f.userID2 = friend.userID) OR (f.userID2 = ? AND f.userID1 = friend.userID)
-      WHERE 
-        friend.userID = ?;
+          WHERE pl.deadlift > friend_lifts.deadlift AND pl.deadlift IS NOT NULL
+        )
+      END AS deadlift_rank
+
+    FROM 
+      users friend
+    JOIN 
+      profile_lifts friend_lifts ON friend.userID = friend_lifts.userID
+    JOIN 
+      friendships f ON (f.userID1 = ? AND f.userID2 = friend.userID) OR (f.userID2 = ? AND f.userID1 = friend.userID)
+    WHERE 
+      friend.userID = ?;
     `;
     
     db.query(

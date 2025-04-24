@@ -9,18 +9,6 @@ const [userID, setUserID] = useState(null);
 
 
 const [incomingFriendRequests, setIncomingFriendRequests] = useState([]);
-// useEffect(() => {
-//   if (userID) {
-//     fetch(`http://localhost:5051/friendRequests/${userID}`, {
-//       headers: {
-//         Authorization: localStorage.getItem('token'),
-//       },
-//     })
-//       .then((response) => response.json())
-//       .then((data) => setIncomingFriendRequests(data))
-//       .catch((error) => console.error('Error fetching friend requests:', error));
-//   }
-// }, [userID]);
 const fetchIncomingFriendRequests = () => {
   if (userID) {
     fetch(`http://localhost:5051/friendRequests/${userID}`, {
@@ -37,10 +25,6 @@ const fetchIncomingFriendRequests = () => {
 useEffect(() => {
   fetchIncomingFriendRequests();
 }, [userID]);
-
-
-
-
 
   const handleSendFriendRequest = async (receiverId) => {
     const requestBody = {
@@ -96,7 +80,7 @@ useEffect(() => {
           },
         })
           .then((response) => response.json())
-          .then((data) => setFriends(data))
+          .then((data) => setFriends(data.friendsList))
           .catch((error) => console.error('Error fetching friends after accepting:', error));
 
           fetchIncomingFriendRequests();
@@ -171,6 +155,8 @@ const searchUsers = async() => {
   }, [navigate]);
 
   const [friends, setFriends] = useState([]);
+  const [friendCount, setFriendCount] = useState(0);
+  
 useEffect(() => {
     if (userID) {
       fetch(`http://localhost:5051/friendslist/${userID}`, {
@@ -178,8 +164,12 @@ useEffect(() => {
           Authorization: localStorage.getItem('token'),
         },
       })
-        .then((response) => response.json())
-        .then((data) => setFriends(data))
+      .then(response => response.json())
+      .then((data) => {
+        console.log(data);
+        setFriends(data.friendsList); 
+        setFriendCount(data.friendCount);
+      })
         .catch((error) => console.error('Error fetching friends:', error));
     }
   }, [userID]); 
@@ -187,7 +177,7 @@ useEffect(() => {
 
 
     return (
-      <div>
+      <div className='profile-container'>
         <header>
         <nav>
           <ul>
@@ -200,16 +190,16 @@ useEffect(() => {
         </header>
         <h1>Welcome {username}, Here is the Friends Page.</h1>
         <div className='card-container'>
-        <h2>Friend Requests</h2>
+        <h2>Friend Requests ({incomingFriendRequests.length})</h2>
         {incomingFriendRequests.length === 0 ? (
           <p>No pending friend requests.</p>
         ) : (
           <ul>
             {incomingFriendRequests.map((request) => (
               <li key={request.userID}>
-                {request.username}
-                <button onClick={() => handleAcceptFriendRequest(request.userID)}>Accept</button>
-                <button onClick={() => handleRejectFriendRequest(request.userID)}>Reject</button>
+                <span className="request-list">{request.username}</span>
+                <button onClick={() => handleAcceptFriendRequest(request.userID)} id='accept-button'>	&#10004;</button>
+                <button onClick={() => handleRejectFriendRequest(request.userID)} id='reject-button'>&#x2716;</button>
                 </li>
             ))}
           </ul>
@@ -223,6 +213,7 @@ useEffect(() => {
         value={searchUsername}
         onChange={(e) => setSearchUsername(e.target.value)}
       />
+            <br></br>
       <button onClick={searchUsers}>Search</button>
       {userSearchResults.length > 0 && (
   <div>
@@ -234,13 +225,13 @@ useEffect(() => {
 
       return (
         <li key={user.userID}>
-          {user.username}
+          <span className="search-results">{user.username}</span>
           {isYou ? (
-            <span> (You)</span>
+            <span><strong> (You)</strong></span>
           ) : isFriend ? (
             <span> (Friends)</span>
           ) : (
-            <button onClick={() => handleSendFriendRequest(user.userID)}>Send Request</button>
+            <button onClick={() => handleSendFriendRequest(user.userID)} id='accept-button'>Send</button>
           )}
         </li>
       );
@@ -251,11 +242,11 @@ useEffect(() => {
   )}
   </div>
   <div className='card-container'>
-        <h2>Friends</h2>
+        <h2>Friends ({friendCount})</h2>
         {friends.length === 0 ? (
         <p>No friends found.</p>
       ) : (
-        <ul>
+        <ul className="friend-list">
           {friends.map((friend) => (
               <li key={friend.userID}>
               <Link to={`/FriendProfile/${friend.userID}`} className='item-list'>{friend.username}</Link>

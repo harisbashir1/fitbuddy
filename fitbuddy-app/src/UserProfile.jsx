@@ -123,7 +123,7 @@ const fetchLifts = async () => {
 
   
     return (
-      <div>
+      <div className="profile-container">
         <header>
           <nav>
             <ul>
@@ -147,6 +147,7 @@ const fetchLifts = async () => {
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
         />
+        <br></br>
         <button onClick={handleGoalSubmit}>Save Goal</button>
 
         <h2>Set your Personal Records</h2>
