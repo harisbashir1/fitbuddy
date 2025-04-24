@@ -81,6 +81,34 @@ useEffect(() => {
 }, [navigate]);
 
 
+const [recentWorkouts, setRecentWorkouts] = useState([]);
+useEffect(() => {
+  const fetchRecentWorkouts = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:5051/recentWorkouts', {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch workout dates.');
+      }
+
+      const workouts = await response.json();
+      setRecentWorkouts(workouts); 
+    } catch (error) {
+      console.error('Error fetching recent workouts:', error);
+      alert(error.message);
+    }
+  };
+
+  fetchRecentWorkouts();
+}, [navigate]);
+
+
 
 
 const handleSubmit = async (e) => {
@@ -208,7 +236,31 @@ const [username, setUsername] = useState(null);
     </div>
     </div>
     <div className="card-container">
-        <h2>Filter Data</h2>
+        <h2>Recent Workouts</h2>
+        {recentWorkouts.length === 0 ? (
+    <p>No workouts logged yet.</p>
+  ) : (
+    <table className="recent-workouts-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Mood</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {recentWorkouts.map((workout, index) => (
+          <tr key={index}>
+            <td>{new Date(workout.workout_date).toLocaleDateString()}</td>
+            <td>{workout.workout_type}</td>
+            <td>{workout.mood ?? '—'}</td>
+            <td>{workout.note || '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
     </div>
 
     <div className="card-container">

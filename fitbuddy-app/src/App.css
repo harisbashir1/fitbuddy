@@ -37,7 +37,7 @@ nav a {
 
 
 
-p, h1, h2, h3, h4, h5, h6, li{
+p, h1, h2, h3, h4, h5, h6, li, td{
     font-family: sans-serif;
 }
 
@@ -173,6 +173,15 @@ html {
       padding: 20px;
       padding-bottom: 50%;
     }
+
+    tr, td {
+        border: 1px solid #283618;
+      }
+    
+      td, th {
+        padding: 5px 20px;
+      }
+    
   }
 
 
@@ -237,7 +246,7 @@ html {
   }
 
 
-  .profile-container input, .profile-container button {
+  .profile-container input, .profile-container button, .profile-container textarea {
     width: 100%;
     max-width: 350px;
     padding: 12px;
@@ -290,11 +299,18 @@ html {
     color: #333;
   }
   
-  
+  tr, td {
+    border: 1px solid #283618;
+  }
 
+  td, th {
+    font-size: larger;
+    padding: 10px 50px;
+  }
 
-
-
+  table {
+    border-collapse: collapse;
+  }
 
 
 

@@ -543,3 +543,81 @@ app.get('/friendslist/:userId', (req, res) => {
       }
     );
   });
+
+  app.get('/recentWorkouts', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+  
+    db.query(
+      `SELECT workout_date, workout_type, mood, note 
+       FROM workouts 
+       WHERE userID = ? 
+       ORDER BY workout_date DESC 
+       LIMIT 10`,
+      [userID],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ message: 'Failed to fetch recent workouts', error: err });
+        }
+        res.json(results);
+      }
+    );
+  });
+
+  app.get('/recentWorkouts', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+  
+    db.query(
+      `SELECT workout_date, workout_type, mood, note 
+       FROM workouts 
+       WHERE userID = ? 
+       ORDER BY workout_date DESC 
+       LIMIT 10`,
+      [userID],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ message: 'Failed to fetch recent workouts', error: err });
+        }
+        res.json(results);
+      }
+    );
+  });
+
+  app.post('/setBio', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+    const { bio } = req.body;
+  
+    try {
+      db.query('UPDATE profile_lifts SET bio = ? WHERE userID = ?', [bio, userID], (err, results) => {
+        if (err) {
+          console.error('Error updating bio:', err);
+          return res.status(500).json({ message: 'Server error' });
+        }
+  
+        res.status(200).json({ message: 'Bio updated successfully' });
+      });
+    } catch (err) {
+    }
+  });
+
+  app.get('/getBio/:userID', (req, res) => {
+    const { userID } = req.params;
+    console.log(userID);
+  
+    try {
+  
+      db.query('SELECT bio FROM profile_lifts WHERE userID = ?', [userID], (err, results) => {
+        if (err) {
+          console.error('Error fetching bio:', err);
+          return res.status(500).json({ message: 'Server error' });
+        }
+  
+        if (results.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+  
+        res.json({bio: results[0].bio || '' });
+      });
+    } catch (err) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+  });

@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const Profile = () => {
   const token = localStorage.getItem('token');
-
+  const [userID, setUserID] = useState('');
   const [goal, setGoal] = useState('');
   const [currentGoal, setCurrentGoal] = useState(null);
   useEffect(() => {
@@ -29,9 +29,23 @@ const Profile = () => {
       }
     };
 
+    const token = localStorage.getItem('token');
+        if (token) {
+          const decodedToken = jwtDecode(token);
+          setUserID(decodedToken.userID)
+        } 
+        else {
+          navigate('/login');
+        }
     fetchGoal();
     fetchLifts();
   }, []);
+
+  useEffect(() => {
+    if (userID) {
+      fetchBio(userID);
+    }
+  }, [userID]);
 
   const handleGoalSubmit = async () => {
 
@@ -120,6 +134,52 @@ const fetchLifts = async () => {
   }
 };
 
+const [bio, setBio] = useState('');
+const [currentBio, setCurrentBio] = useState('');
+
+const handleBioSubmit = async () => {
+  try {
+    const response = await fetch('http://localhost:5051/setBio', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token,
+      },
+      body: JSON.stringify({ bio }),
+    });
+
+    if (response.ok) {
+      setCurrentBio(bio);
+      setBio('');
+    } else {
+      console.error('Failed to update bio');
+    }
+  } catch (error) {
+    console.error('Error saving bio:', error);
+  }
+};
+
+const fetchBio = async (userID) => {
+  try {
+    const response = await fetch(`http://localhost:5051/getBio/${userID}`, {
+      method: 'GET',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.bio) {
+        setCurrentBio(data.bio);
+      } else {
+        setCurrentBio('');
+      }
+    } else {
+      console.error('Failed to fetch bio');
+    }
+  } catch (error) {
+    console.error('Error fetching bio:', error);
+  }
+};
+
 
   
     return (
@@ -135,6 +195,18 @@ const fetchLifts = async () => {
         </header>
         <main>
           <h1>Profile</h1>
+          <h2>Your Bio</h2>
+
+        <p>Bio: {currentBio || 'No bio set yet.'}</p>
+        <textarea
+          rows="4"
+          cols="43"
+          placeholder="Update your bio.."
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        />
+        <br />
+        <button onClick={handleBioSubmit}>Update Bio</button>
           <h2>Set your goal</h2>
           {currentGoal !== null && (
           <p>Current goal: {currentGoal} workouts per week</p>

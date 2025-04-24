@@ -80,6 +80,28 @@ const FriendProfile = () => {
         fetchLiftRankings();
     }, []);
 
+    const [bio, setBio] = useState('');
+
+    useEffect(() => {
+      const fetchBio = async () => {
+        try {
+          const response = await fetch(`http://localhost:5051/getBio/${friendID}`);
+          if (response.ok) {
+            const data = await response.json();
+            setBio(data.bio || '');
+          } else {
+            console.error('Failed to fetch bio');
+          }
+        } catch (error) {
+          console.error('Error fetching bio:', error);
+        }
+      };
+    
+      if (friendID) {
+        fetchBio();
+      }
+    }, [friendID]);
+
 
 
 
@@ -104,7 +126,12 @@ const FriendProfile = () => {
               <li><Link to="/UserProfile">Profile</Link></li>
             </ul>
           </nav>
+          <hr></hr>
       <h2>{profile.username}'s Profile</h2>
+      <div className="card-container">
+        <h2>Bio</h2>
+        <p>{bio || 'No bio set.'}</p>
+      </div>
 
       <div className="card-container">
         <h2>Workout Calendar</h2>
