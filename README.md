@@ -33,70 +33,66 @@ First, clone or download this project to your local machine.
    - Open a MySQL client (like MySQL Workbench or the command line) and run the following SQL commands to create the database and tables:
 
 ```sql
--- Create the `users` table
-CREATE TABLE `users` (
-    `userID` INT(11) NOT NULL AUTO_INCREMENT,
-    `username` VARCHAR(50) NOT NULL,
-    `firstname` VARCHAR(50) NOT NULL,
-    `lastname` VARCHAR(50) NOT NULL,
-    `password` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`userID`),
-    UNIQUE KEY `username` (`username`)
+CREATE DATABASE IF NOT EXISTS Fitbuddy;
+USE Fitbuddy;
+
+CREATE TABLE users (
+  userID INT(11) NOT NULL AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  firstname VARCHAR(50) NOT NULL,
+  lastname VARCHAR(50) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  PRIMARY KEY (userID)
 );
 
--- Create the `friendships` table
-CREATE TABLE `friendships` (
-    `friendship_id` INT AUTO_INCREMENT PRIMARY KEY,
-    `userID1` INT NOT NULL,
-    `userID2` INT NOT NULL,
-    
-    -- Generated columns for consistent order
-    `smaller_userID` INT GENERATED ALWAYS AS (LEAST(`userID1`, `userID2`)) STORED,
-    `larger_userID` INT GENERATED ALWAYS AS (GREATEST(`userID1`, `userID2`)) STORED,
-
-    -- Ensure no duplicate friendships
-    UNIQUE KEY (`smaller_userID`, `larger_userID`),
-
-    -- Foreign key constraints
-    CONSTRAINT `fk_user1` FOREIGN KEY (`userID1`) REFERENCES `users`(`userID`) ON DELETE CASCADE,
-    CONSTRAINT `fk_user2` FOREIGN KEY (`userID2`) REFERENCES `users`(`userID`) ON DELETE CASCADE
+CREATE TABLE friendships (
+  friendship_id INT(11) NOT NULL AUTO_INCREMENT,
+  userID1 INT(11) NOT NULL,
+  userID2 INT(11) NOT NULL,
+  smaller_userID INT(11) GENERATED ALWAYS AS (LEAST(userID1, userID2)) STORED,
+  larger_userID INT(11) GENERATED ALWAYS AS (GREATEST(userID1, userID2)) STORED,
+  PRIMARY KEY (friendship_id),
+  UNIQUE KEY (smaller_userID, larger_userID),
+  KEY fk_user1 (userID1),
+  KEY fk_user2 (userID2),
+  FOREIGN KEY (userID1) REFERENCES users(userID) ON DELETE CASCADE,
+  FOREIGN KEY (userID2) REFERENCES users(userID) ON DELETE CASCADE
 );
 
--- Create the `friend_requests` table
-CREATE TABLE `friend_requests` (
-    `request_id` INT AUTO_INCREMENT PRIMARY KEY,
-    `sender_id` INT NOT NULL,
-    `receiver_id` INT NOT NULL,
-    `status` ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
-
-    -- Ensure no duplicate requests
-    UNIQUE KEY (`sender_id`, `receiver_id`),
-
-    -- Foreign key constraints
-    CONSTRAINT `fk_sender` FOREIGN KEY (`sender_id`) REFERENCES `users`(`userID`) ON DELETE CASCADE,
-    CONSTRAINT `fk_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `users`(`userID`) ON DELETE CASCADE
-
-
-    CREATE TABLE `workouts` (
-  `workout_id` int(11) NOT NULL,
-  `workout_date` datetime NOT NULL,
-  `workout_type` varchar(50) NOT NULL,
-  `mood` int(1) DEFAULT NULL CHECK (`mood` between 1 and 5),
-  `note` text DEFAULT NULL,
-  `userID` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-ALTER TABLE `workouts`
-  ADD PRIMARY KEY (`workout_id`),
-  ADD KEY `fk_user` (`userID`);
-
-  ALTER TABLE `workouts`
-  MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
-  ALTER TABLE `workouts`
-  ADD CONSTRAINT `fk_user` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE;
-
+CREATE TABLE friend_requests (
+  request_id INT(11) NOT NULL AUTO_INCREMENT,
+  sender_id INT(11) NOT NULL,
+  receiver_id INT(11) NOT NULL,
+  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+  PRIMARY KEY (request_id),
+  UNIQUE KEY (sender_id, receiver_id),
+  KEY fk_receiver (receiver_id),
+  FOREIGN KEY (sender_id) REFERENCES users(userID) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(userID) ON DELETE CASCADE
 );
+
+CREATE TABLE user_goals (
+  goalID INT(11) NOT NULL AUTO_INCREMENT,
+  userID INT(11) NOT NULL UNIQUE,
+  frequency INT(11) NOT NULL CHECK (frequency BETWEEN 1 AND 7),
+  goal_streak INT(11) NOT NULL DEFAULT 0,
+  last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (goalID),
+  FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
+);
+
+CREATE TABLE workouts (
+  workout_id INT(11) NOT NULL AUTO_INCREMENT,
+  workout_date DATETIME NOT NULL,
+  workout_type VARCHAR(50) NOT NULL,
+  mood INT(1) DEFAULT NULL CHECK (mood BETWEEN 1 AND 5),
+  note TEXT DEFAULT NULL,
+  userID INT(11) NOT NULL,
+  PRIMARY KEY (workout_id),
+  KEY fk_user (userID),
+  FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
+);
+
 ```
 4. **Start the backend server (ensuring you are still in backend directory)**:
 

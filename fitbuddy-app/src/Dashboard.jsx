@@ -10,6 +10,44 @@ const Dashboard = () => {
 const navigate = useNavigate();
 
 
+const [streak, setStreak] = useState(0);
+const [remainingThisWeek,setRemainingThisWeek] = useState(null);
+useEffect(() => {
+  const fetchStreakInfo = async () => {
+    const token = localStorage.getItem('token');
+    const decoded = jwtDecode(token);
+    const userID = decoded.userID;
+    try {
+      const response = await fetch(`http://localhost:5051/getStreakInfo/${userID}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': token,
+        },
+      });
+
+      if (response.status === 404) {
+        // No goal set yet — handle gracefully
+        setStreak(0);
+        setRemainingThisWeek(null); 
+        return; // Stop further processing
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch streak info');
+      }
+
+      const data = await response.json();
+      setStreak(data.goal_streak); 
+      setRemainingThisWeek(data.remainingWorkouts); 
+    } catch (error) {
+      console.error('Error fetching workout dates:', error);
+      alert(error.message);
+    }
+  };
+
+  fetchStreakInfo();
+}, []);
+
 const [workoutType, setWorkoutType] = useState('');
 const [mood, setMood] = useState('');
 const [note, setNote] = useState('');
@@ -119,6 +157,13 @@ const [username, setUsername] = useState(null);
           <hr></hr>
         </header>
         <h1>Welcome {username}, Here is the Dashboard.</h1>
+
+          <p className='streak-labels'><strong>{streak}</strong> weeks🔥🔥🔥 (Updates at the end of week)</p>
+          {remainingThisWeek === null ? (
+              <p className='streak-labels'>Set a goal in your <Link to="/userProfile">profile</Link> to start tracking your streak!</p>
+            ) : (
+              <p className='streak-labels'>Log <strong>{remainingThisWeek}</strong> more workouts this week to add to the streak!</p>
+            )}
         <div class="card-container">
         <h2>Workout Calendar</h2>
         <WorkoutCalendar workoutDates={workoutDates} />
@@ -167,6 +212,10 @@ const [username, setUsername] = useState(null);
     </div>
     <div className="card-container">
         <h2>Filter Data</h2>
+    </div>
+
+    <div className="card-container">
+        <h2>Friend Activity</h2>
     </div>
       </div>
     );

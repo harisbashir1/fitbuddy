@@ -170,6 +170,12 @@ useEffect(() => {
     return (
       <div>
         <header>
+        <nav>
+          <ul>
+          <li><Link to="/Dashboard">Home</Link></li>
+            <li><Link to="/UserProfile">Profile</Link></li>
+          </ul>
+        </nav>
 
           <hr></hr>
         </header>

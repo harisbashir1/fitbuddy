@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const { getISOWeek } = require('date-fns');
 const app = express();
 const PORT = 5051;
 
@@ -225,7 +225,6 @@ app.get('/friendslist/:userId', (req, res) => {
     const {workout_type, mood, note} = req.body;
     const userID = req.user.userID; 
     const currentDate = new Date();
-    console.log(workout_type, mood, note, userID, currentDate);
     db.query(`INSERT INTO workouts (workout_date, workout_type, mood, note, userID) VALUES (?, ?, ?, ?, ?)`,
        [currentDate, workout_type, mood || null, note || null, userID ], (err, results) => {
       if (err) {
@@ -266,4 +265,127 @@ app.get('/friendslist/:userId', (req, res) => {
   
       res.json(results[0]);
     });
+  });
+
+  app.post('/setGoal', authenticateToken,(req, res) => {
+    const { frequency } = req.body;
+    const userID = req.user.userID;
+    console.log(frequency, userID);
+  
+    if (!frequency || frequency < 1 || frequency > 7) {
+      return res.status(400).json({ error: 'Invalid frequency' });
+    }
+  
+    const sql = `
+    INSERT INTO user_goals (userID, frequency)
+    VALUES (?, ?)
+    ON DUPLICATE KEY UPDATE frequency = VALUES(frequency)
+  `;
+
+    db.query(sql, [userID, frequency], (err, result) => {
+      if (err) {
+        console.error('Error saving goal:', err);
+        return res.status(500).json({ error: 'Server error' });
+      }
+  
+      res.json({ message: 'Goal saved successfully', frequency });
+    });
+  });
+
+
+  app.get('/getGoal', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+  
+    db.query(
+      'SELECT frequency FROM user_goals WHERE userID = ?',
+      [userID],
+      (err, result) => {
+        if (err) {
+          console.error('Error fetching goal:', err);
+          return res.status(500).json({ error: 'Server error' });
+        }
+  
+        if (result.length > 0) {
+          res.json(result[0]);
+        } else {
+          res.json({ frequency: null });
+        }
+      }
+    );
+  });
+
+
+  app.get('/getStreakInfo/:userID', async (req, res) => {
+    const userID = req.params.userID;
+  
+    try {
+      const [goalRows] = await db.promise().query(
+        'SELECT frequency, goal_streak, last_updated FROM user_goals WHERE userID = ?',
+        [userID]
+      );
+
+      if (goalRows.length === 0) {
+        return res.status(404).json({ message: 'no goal info found'});
+      }
+  
+  
+      const frequency = goalRows[0].frequency;
+      var goal_streak = goalRows[0].goal_streak ;
+      const lastUpdated = goalRows[0].last_updated;
+  
+      const today = new Date();
+      // const today = new Date('2025-05-15');
+      const firstDayOfWeek = new Date(today);
+      firstDayOfWeek.setDate(today.getDate() - today.getDay()); //to get Sunday
+
+
+      const startOfLastWeek = new Date(firstDayOfWeek);
+      startOfLastWeek.setDate(startOfLastWeek.getDate() - 7); //last sunday
+
+      const endOfLastWeek = new Date(firstDayOfWeek);
+      endOfLastWeek.setDate(endOfLastWeek.getDate() - 1); 
+
+      const lastUpdatedDate = new Date(lastUpdated);
+      const isSameWeek = getISOWeek(lastUpdatedDate) === getISOWeek(today); 
+
+      console.log(`lastUpdated: ${lastUpdated}, today: ${today}, isSameWeek: ${isSameWeek}`);
+
+      if (!isSameWeek) {
+      const [workoutsLastWeek] = await db.promise().query(
+        'SELECT COUNT(*) AS count FROM workouts WHERE userID = ? AND workout_date BETWEEN ? AND ?',
+        [userID, startOfLastWeek, endOfLastWeek]
+      );
+  
+      const completedLastWeek = workoutsLastWeek[0].count;
+  
+      if (completedLastWeek >= frequency) {
+        goal_streak += 1;
+      } else {
+        goal_streak = 0;
+      }
+      
+
+      await db.promise().query(
+        'UPDATE user_goals SET goal_streak = ?, last_updated = ? WHERE userID = ?',
+        [goal_streak, today, userID]
+      );
+    }
+  
+      const [workoutsThisWeek] = await db.promise().query(
+        'SELECT COUNT(*) AS count FROM workouts WHERE userID = ? AND workout_date >= ?',
+        [userID, firstDayOfWeek]
+      );
+  
+      const completedThisWeek = workoutsThisWeek[0].count;
+      const remainingWorkouts = Math.max(frequency - completedThisWeek, 0);
+      console.log('rw',remainingWorkouts);
+      res.json({
+        goal_streak,
+        remainingWorkouts,
+      });
+  
+    } catch (error) {
+      console.error('Error fetching streak info:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
   });
