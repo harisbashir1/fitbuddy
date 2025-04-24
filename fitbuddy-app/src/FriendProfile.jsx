@@ -113,11 +113,23 @@ const FriendProfile = () => {
       <div className="card-container">
         <h2>Lift Leaderboard Rankings</h2>
         {liftRankings && liftRankings.bench !== undefined ? (
-    <ul>
-      <li>Bench: {liftRankings.bench} lbs (Rank: {liftRankings.bench_rank})</li>
-      <li>Squat: {liftRankings.squat} lbs (Rank: {liftRankings.squat_rank})</li>
-      <li>Deadlift: {liftRankings.deadlift} lbs (Rank: {liftRankings.deadlift_rank})</li>
-    </ul>
+    <div className="lift-cards-container">
+    <div className="lift-card">
+      <h3>Bench Press</h3>
+      <p>{liftRankings.bench} lbs</p>
+      <p>#{liftRankings.bench_rank} in friends</p>
+    </div>
+    <div className="lift-card">
+      <h3>Squat</h3>
+      <p>{liftRankings.squat} lbs</p>
+      <p>#{liftRankings.squat_rank} in friends</p>
+    </div>
+    <div className="lift-card">
+      <h3>Deadlift</h3>
+      <p>{liftRankings.deadlift} lbs</p>
+      <p>#{liftRankings.deadlift_rank} in friends</p>
+    </div>
+  </div>
   ) : (
     <p>This user hasn't logged any lifts yet.</p>
   )}
