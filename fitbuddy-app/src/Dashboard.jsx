@@ -156,7 +156,7 @@ const [username, setUsername] = useState(null);
           </nav>
           <hr></hr>
         </header>
-        <h1>Welcome {username}, Here is the Dashboard.</h1>
+        <h1>Welcome, {username}</h1>
 
           <p className='streak-labels'><strong>{streak}</strong> weeks🔥🔥🔥 (Updates at the end of week)</p>
           {remainingThisWeek === null ? (
@@ -172,7 +172,6 @@ const [username, setUsername] = useState(null);
         <h2>Log a workout</h2>
         <div className ="entry-form">
         <form onSubmit={handleSubmit}>
-      {/* Workout Type */}
       <div >
         <label>Workout Type *</label>
         <input
@@ -183,7 +182,6 @@ const [username, setUsername] = useState(null);
         />
       </div>
 
-      {/* Mood */}
       <div>
         <label>Mood (1-5)</label>
         <select value={mood} onChange={(e) => setMood(e.target.value)}>
@@ -194,7 +192,6 @@ const [username, setUsername] = useState(null);
         </select>
       </div>
 
-      {/* Note */}
       <div>
         <label>Note</label>
         <textarea
@@ -205,7 +202,6 @@ const [username, setUsername] = useState(null);
         />
       </div>
 
-      {/* Submit Button */}
       <button type="submit">Log Workout</button>
     </form>
     </div>

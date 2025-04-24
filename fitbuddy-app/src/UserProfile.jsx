@@ -70,7 +70,7 @@ const Profile = () => {
           <h1>Profile</h1>
           <h2>Set your goal</h2>
           {currentGoal !== null && (
-          <p>✅ Current goal: {currentGoal} workouts per week</p>
+          <p>Current goal: {currentGoal} workouts per week</p>
         )}
           <p>Update Goal</p>
           <input

@@ -9,7 +9,19 @@ const [userID, setUserID] = useState(null);
 
 
 const [incomingFriendRequests, setIncomingFriendRequests] = useState([]);
-useEffect(() => {
+// useEffect(() => {
+//   if (userID) {
+//     fetch(`http://localhost:5051/friendRequests/${userID}`, {
+//       headers: {
+//         Authorization: localStorage.getItem('token'),
+//       },
+//     })
+//       .then((response) => response.json())
+//       .then((data) => setIncomingFriendRequests(data))
+//       .catch((error) => console.error('Error fetching friend requests:', error));
+//   }
+// }, [userID]);
+const fetchIncomingFriendRequests = () => {
   if (userID) {
     fetch(`http://localhost:5051/friendRequests/${userID}`, {
       headers: {
@@ -20,6 +32,10 @@ useEffect(() => {
       .then((data) => setIncomingFriendRequests(data))
       .catch((error) => console.error('Error fetching friend requests:', error));
   }
+};
+
+useEffect(() => {
+  fetchIncomingFriendRequests();
 }, [userID]);
 
 
@@ -74,10 +90,16 @@ useEffect(() => {
         throw new Error(data.message || 'Failed to accept friend request.');
       }
 
-      // Update the state to reflect changes after accepting
-      setIncomingFriendRequests((prevRequests) => 
-        prevRequests.filter((request) => request.request_id !== requestId)
-      );
+        fetch(`http://localhost:5051/friendslist/${userID}`, {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => setFriends(data))
+          .catch((error) => console.error('Error fetching friends after accepting:', error));
+
+          fetchIncomingFriendRequests();
 
     } catch (error) {
       alert(error.message);
@@ -106,10 +128,7 @@ useEffect(() => {
         throw new Error(data.message || 'Failed to reject friend request.');
       }
 
-      // Update the state to reflect changes after rejecting
-      setIncomingFriendRequests((prevRequests) => 
-        prevRequests.filter((request) => request.request_id !== requestId)
-      );
+      fetchIncomingFriendRequests();
 
     } catch (error) {
       alert(error.message);

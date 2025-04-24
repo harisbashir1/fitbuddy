@@ -41,6 +41,10 @@ p, h1, h2, h3, h4, h5, h6, li{
     font-family: sans-serif;
 }
 
+p {
+    font-size: larger;
+}
+
 
 nav ul li a{
     text-decoration: none;

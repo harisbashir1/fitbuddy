@@ -348,7 +348,7 @@ app.get('/friendslist/:userId', (req, res) => {
       const lastUpdatedDate = new Date(lastUpdated);
       const isSameWeek = getISOWeek(lastUpdatedDate) === getISOWeek(today); 
 
-      console.log(`lastUpdated: ${lastUpdated}, today: ${today}, isSameWeek: ${isSameWeek}`);
+      // console.log(`lastUpdated: ${lastUpdated}, today: ${today}, isSameWeek: ${isSameWeek}`);
 
       if (!isSameWeek) {
       const [workoutsLastWeek] = await db.promise().query(
@@ -378,7 +378,6 @@ app.get('/friendslist/:userId', (req, res) => {
   
       const completedThisWeek = workoutsThisWeek[0].count;
       const remainingWorkouts = Math.max(frequency - completedThisWeek, 0);
-      console.log('rw',remainingWorkouts);
       res.json({
         goal_streak,
         remainingWorkouts,
