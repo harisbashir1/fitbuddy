@@ -270,13 +270,13 @@ html {
 }
   
   .profile-container button {
-    background-color: #4CAF50;
+    background-color: #2b6c2f;
     color: white;
     cursor: pointer;
   }
   
   .profile-container button:hover {
-    background-color: #45a049;
+    background-color: #308134;
   }
   
   

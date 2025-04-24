@@ -5,8 +5,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 
 
 
-
 const FriendProfile = () => {
+  const BACKEND_URL = "http://localhost:5051";
     const navigate = useNavigate();
 
   const { friendID } = useParams();
@@ -16,7 +16,7 @@ const FriendProfile = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
 
-    fetch(`http://localhost:5051/friendProfile/${friendID}`, {
+    fetch(`${BACKEND_URL}/friendProfile/${friendID}`, {
       headers: { Authorization: token },
     })
       .then(res => res.json())
@@ -30,7 +30,7 @@ const FriendProfile = () => {
     const fetchWorkoutDates = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:5051/getWorkoutDates?friendID=${friendID}`, {
+        const response = await fetch(`${BACKEND_URL}/getWorkoutDates?friendID=${friendID}`, {
           method: 'GET',
           headers: {
             'Authorization': token,
@@ -59,7 +59,7 @@ const FriendProfile = () => {
         const fetchLiftRankings = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch(`http://localhost:5051/getLiftRankings?friendID=${friendID}`, {
+                const response = await fetch(`${BACKEND_URL}/getLiftRankings?friendID=${friendID}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': token,
@@ -85,7 +85,7 @@ const FriendProfile = () => {
     useEffect(() => {
       const fetchBio = async () => {
         try {
-          const response = await fetch(`http://localhost:5051/getBio/${friendID}`);
+          const response = await fetch(`${BACKEND_URL}/getBio/${friendID}`);
           if (response.ok) {
             const data = await response.json();
             setBio(data.bio || '');

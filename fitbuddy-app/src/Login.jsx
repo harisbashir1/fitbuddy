@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
+const BACKEND_URL = "http://localhost:5051";
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -13,7 +15,7 @@ const Login = () => {
       setError('');
   
       try {
-        const res = await axios.post('http://localhost:5051/login', { username, password });
+        const res = await axios.post(`${BACKEND_URL}/login`, { username, password });
         localStorage.setItem('token', res.data.token); // Save JWT token in localStorage
         navigate('/dashboard'); // Redirect to dashboard after successful login
       } catch (err) {

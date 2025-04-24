@@ -6,12 +6,13 @@ const Friends = () => {
 const navigate = useNavigate();
 const [username, setUsername] = useState(null);
 const [userID, setUserID] = useState(null);
+const BACKEND_URL = "http://localhost:5051"
 
 
 const [incomingFriendRequests, setIncomingFriendRequests] = useState([]);
 const fetchIncomingFriendRequests = () => {
   if (userID) {
-    fetch(`http://localhost:5051/friendRequests/${userID}`, {
+    fetch(`${BACKEND_URL}/friendRequests/${userID}`, {
       headers: {
         Authorization: localStorage.getItem('token'),
       },
@@ -32,7 +33,7 @@ useEffect(() => {
       receiverId: receiverId,
     };
     try {
-      const response = await fetch('http://localhost:5051/friendRequest', {
+      const response = await fetch(`${BACKEND_URL}/friendRequest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ useEffect(() => {
       receiverId: userID,
     };
     try {
-      const response = await fetch(`http://localhost:5051/acceptFriendRequest`, {
+      const response = await fetch(`${BACKEND_URL}/acceptFriendRequest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,13 +75,16 @@ useEffect(() => {
         throw new Error(data.message || 'Failed to accept friend request.');
       }
 
-        fetch(`http://localhost:5051/friendslist/${userID}`, {
+        fetch(`${BACKEND_URL}/friendslist/${userID}`, {
           headers: {
             Authorization: localStorage.getItem('token'),
           },
         })
           .then((response) => response.json())
-          .then((data) => setFriends(data.friendsList))
+          .then((data) => {
+            setFriends(data.friendsList);
+            setFriendCount(data.friendCount);
+          })
           .catch((error) => console.error('Error fetching friends after accepting:', error));
 
           fetchIncomingFriendRequests();
@@ -97,7 +101,7 @@ useEffect(() => {
       receiverId: userID,
     };
     try {
-      const response = await fetch(`http://localhost:5051/rejectFriendRequest`, {
+      const response = await fetch(`${BACKEND_URL}/rejectFriendRequest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +131,7 @@ const searchUsers = async() => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5051/searchUsers?username=${searchUsername}`, {
+      const response = await fetch(`${BACKEND_URL}/searchUsers?username=${searchUsername}`, {
         headers: {
           Authorization: localStorage.getItem('token'),
         },
@@ -159,7 +163,7 @@ const searchUsers = async() => {
   
 useEffect(() => {
     if (userID) {
-      fetch(`http://localhost:5051/friendslist/${userID}`, {
+      fetch(`${BACKEND_URL}/friendslist/${userID}`, {
         headers: {
           Authorization: localStorage.getItem('token'),
         },

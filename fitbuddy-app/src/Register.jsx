@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Register = () => {
+    const BACKEND_URL = "http://localhost:5051";
     const [username, setUsername] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -15,7 +16,7 @@ const Register = () => {
       setError('');
 
       try {
-        const res = await axios.post('http://localhost:5051/register', {
+        const res = await axios.post(`${BACKEND_URL}/register`, {
           username,
           firstName,
           lastName,

@@ -8,7 +8,7 @@ import WorkoutCalendar from './workoutCalendar';
 
 const Dashboard = () => {
 const navigate = useNavigate();
-
+const BACKEND_URL = "http://localhost:5051";
 
 const [streak, setStreak] = useState(0);
 const [remainingThisWeek,setRemainingThisWeek] = useState(null);
@@ -18,7 +18,7 @@ useEffect(() => {
     const decoded = jwtDecode(token);
     const userID = decoded.userID;
     try {
-      const response = await fetch(`http://localhost:5051/getStreakInfo/${userID}`, {
+      const response = await fetch(`${BACKEND_URL}/getStreakInfo/${userID}`, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -58,7 +58,7 @@ useEffect(() => {
   const fetchWorkoutDates = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:5051/getWorkoutDates', {
+      const response = await fetch(`${BACKEND_URL}/getWorkoutDates`, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -78,7 +78,7 @@ useEffect(() => {
   };
 
   fetchWorkoutDates();
-}, [navigate]);
+}, []);
 
 
 const [recentWorkouts, setRecentWorkouts] = useState([]);
@@ -86,7 +86,7 @@ useEffect(() => {
   const fetchRecentWorkouts = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:5051/recentWorkouts', {
+      const response = await fetch(`${BACKEND_URL}/recentWorkouts`, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -106,7 +106,7 @@ useEffect(() => {
   };
 
   fetchRecentWorkouts();
-}, [navigate]);
+}, []);
 
 
 
@@ -121,7 +121,7 @@ const handleSubmit = async (e) => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:5051/logWorkout', {
+      const response = await fetch(`${BACKEND_URL}/logWorkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ const [username, setUsername] = useState(null);
     else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Remove token from local storage
@@ -186,17 +186,17 @@ const [username, setUsername] = useState(null);
         </header>
         <h1>Welcome, {username}</h1>
 
-          <p className='streak-labels'><strong>{streak}</strong> weeks🔥🔥🔥 (Updates at the end of week)</p>
+          <p className='streak-labels'><strong>{streak}</strong> week(s)🔥🔥🔥 (Updates at the end of week)</p>
           {remainingThisWeek === null ? (
               <p className='streak-labels'>Set a goal in your <Link to="/userProfile">profile</Link> to start tracking your streak!</p>
             ) : (
               <p className='streak-labels'>Log <strong>{remainingThisWeek}</strong> more workouts this week to add to the streak!</p>
             )}
-        <div class="card-container">
+        <div className="card-container">
         <h2>Workout Calendar</h2>
         <WorkoutCalendar workoutDates={workoutDates} />
         </div>
-        <div class="card-container">
+        <div className="card-container">
         <h2>Log today's workout</h2>
         <h3>Congrats on checking in!</h3>
         <div className ="entry-form">

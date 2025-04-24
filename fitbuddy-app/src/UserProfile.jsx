@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 const Profile = () => {
+  const BACKEND_URL = "http://localhost:5051";
   const token = localStorage.getItem('token');
   const [userID, setUserID] = useState('');
   const [goal, setGoal] = useState('');
@@ -10,7 +11,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchGoal = async () => {
       try {
-        const response = await fetch('http://localhost:5051/getGoal', {
+        const response = await fetch(`${BACKEND_URL}/getGoal`, {
           method: 'GET',
           headers: {
             'Authorization': token,
@@ -50,7 +51,7 @@ const Profile = () => {
   const handleGoalSubmit = async () => {
 
     try {
-      const response = await fetch('http://localhost:5051/setGoal', {
+      const response = await fetch(`${BACKEND_URL}/setGoal`, {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +85,7 @@ const handlePRSubmit = async () => {
   if (deadlift !== '') payload.deadlift = deadlift;
 
   try {
-    const response = await fetch('http://localhost:5051/setLifts', {
+    const response = await fetch(`${BACKEND_URL}/setLifts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ const [squatLabel, setSquatLabel] = useState('');
 const [deadliftLabel, setDeadliftLabel] = useState('');
 const fetchLifts = async () => {
   try {
-    const response = await fetch('http://localhost:5051/getLifts', {
+    const response = await fetch(`${BACKEND_URL}/getLifts`, {
       method: 'GET',
       headers: {
         'Authorization': token,
@@ -139,7 +140,7 @@ const [currentBio, setCurrentBio] = useState('');
 
 const handleBioSubmit = async () => {
   try {
-    const response = await fetch('http://localhost:5051/setBio', {
+    const response = await fetch(`${BACKEND_URL}/setBio`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +162,7 @@ const handleBioSubmit = async () => {
 
 const fetchBio = async (userID) => {
   try {
-    const response = await fetch(`http://localhost:5051/getBio/${userID}`, {
+    const response = await fetch(`${BACKEND_URL}/getBio/${userID}`, {
       method: 'GET',
     });
 
