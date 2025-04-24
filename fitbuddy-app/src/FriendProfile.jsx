@@ -52,9 +52,47 @@ const FriendProfile = () => {
     fetchWorkoutDates();
   }, [navigate]);
 
+
+  const [liftRankings, setLiftRankings] = useState(null);
+
+    useEffect(() => {
+        const fetchLiftRankings = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`http://localhost:5051/getLiftRankings?friendID=${friendID}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setLiftRankings(data);
+                } else {
+                    console.error('Failed to fetch lift rankings');
+                }
+            } catch (error) {
+                console.error('Error fetching lift rankings:', error);
+            }
+        };
+
+        fetchLiftRankings();
+    }, []);
+
+
+
+
+
+
+
+
+
+
   if (!profile) {
     return <p>Loading profile...</p>;
   }
+
 
 
   return (
@@ -71,6 +109,18 @@ const FriendProfile = () => {
       <div className="card-container">
         <h2>Workout Calendar</h2>
         <WorkoutCalendar workoutDates={workoutDates || []} />
+      </div>
+      <div className="card-container">
+        <h2>Lift Leaderboard Rankings</h2>
+        {liftRankings && liftRankings.bench !== undefined ? (
+    <ul>
+      <li>Bench: {liftRankings.bench} lbs (Rank: {liftRankings.bench_rank})</li>
+      <li>Squat: {liftRankings.squat} lbs (Rank: {liftRankings.squat_rank})</li>
+      <li>Deadlift: {liftRankings.deadlift} lbs (Rank: {liftRankings.deadlift_rank})</li>
+    </ul>
+  ) : (
+    <p>This user hasn't logged any lifts yet.</p>
+  )}
       </div>
     </div>
   );

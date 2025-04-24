@@ -93,6 +93,22 @@ CREATE TABLE workouts (
   FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
 );
 
+CREATE TABLE `profile_lifts` (
+  `id` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
+  `bench` float DEFAULT NULL,
+  `squat` float DEFAULT NULL,
+  `deadlift` float DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `profile_lifts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `userID` (`userID`);
+  ALTER TABLE `profile_lifts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  ALTER TABLE `profile_lifts`
+  ADD CONSTRAINT `profile_lifts_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE;
+
 ```
 4. **Start the backend server (ensuring you are still in backend directory)**:
 

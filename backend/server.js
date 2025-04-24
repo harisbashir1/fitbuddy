@@ -388,3 +388,133 @@ app.get('/friendslist/:userId', (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+
+  app.post('/setLifts', authenticateToken, (req, res) => {
+    const { userID, bench, squat, deadlift } = req.body;
+  
+    if (!userID) {
+      return res.status(400).json({ error: 'Missing userID' });
+    }
+    //since we want to be able to only update 1, dynamically build query
+    let columns = ['userID'];
+    let values = [userID];
+    let updates = [];
+  
+    if (bench !== undefined) {
+      columns.push('bench');
+      values.push(bench);
+      updates.push('bench = VALUES(bench)');
+    }
+  
+    if (squat !== undefined) {
+      columns.push('squat');
+      values.push(squat);
+      updates.push('squat = VALUES(squat)');
+    }
+  
+    if (deadlift !== undefined) {
+      columns.push('deadlift');
+      values.push(deadlift);
+      updates.push('deadlift = VALUES(deadlift)');
+    }
+  
+    const query = `
+      INSERT INTO profile_lifts (${columns.join(', ')})
+      VALUES (${columns.map(() => '?').join(', ')})
+      ON DUPLICATE KEY UPDATE ${updates.join(', ')}
+    `;
+  
+    db.query(query, values, (err, results) => {
+      if (err) {
+        console.error('DB error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.status(200).json({ message: 'Lifts saved' });
+    });
+  });
+
+
+  app.get('/getLifts', authenticateToken, (req, res) => {
+    const decoded = req.user;
+    const userID = decoded.userID;
+  
+    db.query(
+      'SELECT bench, squat, deadlift FROM profile_lifts WHERE userID = ?',
+      [userID],
+      (err, results) => {
+        if (err) {
+          console.error('DB error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+  
+        if (results.length === 0) {
+          return res.status(200).json({});
+        }
+  
+        res.status(200).json(results[0]);
+      }
+    );
+  });
+
+  app.get('/getLiftRankings', authenticateToken, (req, res) => {  // Remove async
+    const { friendID } = req.query;
+    const userID = req.user.userID;
+    
+    const query = `
+      SELECT 
+        friend.userID,
+        friend.username,
+        friend_lifts.bench,
+        (
+          SELECT COUNT(*) + 1 
+          FROM profile_lifts pl
+          JOIN users u ON pl.userID = u.userID
+          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
+          WHERE pl.bench > friend_lifts.bench
+        ) AS bench_rank,
+        friend_lifts.squat,
+        (
+          SELECT COUNT(*) + 1 
+          FROM profile_lifts pl
+          JOIN users u ON pl.userID = u.userID
+          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
+          WHERE pl.squat > friend_lifts.squat
+        ) AS squat_rank,
+        friend_lifts.deadlift,
+        (
+          SELECT COUNT(*) + 1 
+          FROM profile_lifts pl
+          JOIN users u ON pl.userID = u.userID
+          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
+          WHERE pl.deadlift > friend_lifts.deadlift
+        ) AS deadlift_rank
+      FROM 
+        users friend
+      JOIN 
+        profile_lifts friend_lifts ON friend.userID = friend_lifts.userID
+      JOIN 
+        friendships f ON (f.userID1 = ? AND f.userID2 = friend.userID) OR (f.userID2 = ? AND f.userID1 = friend.userID)
+      WHERE 
+        friend.userID = ?;
+    `;
+    
+    db.query(
+      query, 
+      [
+        userID, userID,
+        userID, userID,
+        userID, userID,
+        userID, userID,
+        friendID
+      ],
+      (error, results) => {
+        if (error) {
+          console.error('Error fetching rankings:', error);
+          return res.status(500).json({ message: 'Error fetching rankings' });
+        }
+        console.log(results[0]);
+        res.json(results[0] || {});
+      }
+    );
+  });
