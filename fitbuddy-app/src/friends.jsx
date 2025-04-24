@@ -197,7 +197,8 @@ useEffect(() => {
           <ul>
             {incomingFriendRequests.map((request) => (
               <li key={request.userID}>
-                <span className="request-list">{request.username}</span>
+                <Link to={`/FriendProfile/${request.userID}`} className="item-list" >{request.username}</Link>
+                {/* <span className="request-list">{request.username}</span> */}
                 <button onClick={() => handleAcceptFriendRequest(request.userID)} id='accept-button'>	&#10004;</button>
                 <button onClick={() => handleRejectFriendRequest(request.userID)} id='reject-button'>&#x2716;</button>
                 </li>
