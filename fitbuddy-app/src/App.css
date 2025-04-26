@@ -245,6 +245,10 @@ html {
     transition: background-color 0.2s ease;
   }
 
+  #streak-names {
+    background-color:#283618 ;
+    color: white;
+  }
 
   .profile-container input, .profile-container button, .profile-container textarea {
     width: 100%;
@@ -298,6 +302,14 @@ html {
     margin-bottom: 8px;
     color: #333;
   }
+
+  #profile-name {
+    margin-bottom: 20px;
+  }
+
+  #streak-container {
+    margin-bottom: 3%;
+  }
   
   tr, td {
     border: 1px solid #283618;
@@ -306,9 +318,70 @@ html {
   td, th {
     font-size: larger;
     padding: 10px 50px;
+    font-family: sans-serif ;
   }
 
-  table {
+  th {
+    background-color: #283618;
+    color: #fff;
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #a3b18a; 
+  }
+
+  tr:nth-child(odd) {
+    background-color: #ccc; 
+  }
+
+  tr:hover {
+    background-color: #fff; 
+  }
+
+
+
+
+  .friend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .ranking {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+  .registration-button {
+    background-color: #35471f;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 100px;
+  }
+  
+  .registration-button:hover {
+    background-color: #283618;
+    transform: scale(1.03);
+  }
+  
+  .registration-button:active {
+    transform: scale(0.97);
+  }
+
+
+  .recent-workouts-table {
+    margin-left: auto;
+    margin-right: auto;
+    width: auto; 
     border-collapse: collapse;
   }
 

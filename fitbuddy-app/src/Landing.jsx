@@ -14,12 +14,20 @@ const Landing = () => {
   
     return (
       <div>
+        <img src="/fitbuddyLogo.png" alt="Fitbuddy" style={{ width: '100px', height: 'auto' }} />
+        
         <h1>Fitbuddy</h1>
-        <h2>Landing Page</h2>
-        <h3>Here we can include pictures and descriptions of Fitbuddy it serves as the initial route to login and registration as well.</h3>
-        <Link to="/login">Login</Link>
-        <br></br>
-        <Link to="/register">Register</Link>
+        <Link to="/login" class='registration-button'>Login</Link>
+        <br></br><br></br><br></br>
+        <Link to="/register "class='registration-button'>Register</Link>
+        <h2>
+          Fitbuddy is a dynamic fitness tracker and social media platform designed
+          to help users stay on top of their fitness goals while connecting with
+          friends and fellow fitness enthusiasts. With Fitbuddy, you can track workouts, set goals, share progress, 
+            and engage with a supportive community to stay motivated and reach your full potential.
+        </h2>
+        <img src="/brandImage.png" alt="Brand Image" style={{ width: '50%', height: 'auto' }} />
+        <img src="/brandImage2.png" alt="Brand Image 2" style={{  width: '50%', height: 'auto' }} />
       </div>
     );
     };

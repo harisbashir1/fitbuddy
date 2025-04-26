@@ -182,7 +182,10 @@ useEffect(() => {
 
     return (
       <div className='profile-container'>
-        <header>
+    <header>
+      <Link to="/Dashboard">
+          <img src="/fitbuddyLogo.png" alt="Fitbuddy" style={{ width: '100px', height: 'auto' }} />
+        </Link>
         <nav>
           <ul>
           <li><Link to="/Dashboard">Home</Link></li>

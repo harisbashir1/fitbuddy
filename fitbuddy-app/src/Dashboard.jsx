@@ -3,20 +3,103 @@ import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode'; 
 import WorkoutCalendar from './workoutCalendar';
 
-
-
-
 const Dashboard = () => {
-const navigate = useNavigate();
-const BACKEND_URL = "http://localhost:5051";
 
+  const navigate = useNavigate();
+  const BACKEND_URL = "http://localhost:5051";
+  const [userID, setUserID] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem('token');
+  });
+
+  //decode token for relevant info
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const decoded = jwtDecode(token);
+      setUserID(decoded.userID);
+      setUsername(decoded.username);
+    } catch (error) {
+      console.error('Invalid token:', error);
+      localStorage.removeItem('token');
+      navigate('/login');
+    }
+  }, [token, navigate]);
+
+
+  //set friends List
+  const [friends, setFriends] = useState([]);
+  useEffect(() => {
+    if (!token || !userID) return; 
+    const fetchFriends = async () => {
+  
+      try {
+        const response = await fetch(`${BACKEND_URL}/friendslist/${userID}`, {
+          method: 'GET',
+          headers: {
+            Authorization: token,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch friends list');
+        }
+  
+        const data = await response.json();
+        setFriends(data.friendsList);
+      } catch (error) {
+        console.error('Error fetching friends:', error);
+      }
+    };
+    fetchFriends();
+  }, [userID, token]);
+
+
+//retrieve friends Streaks for leaderboard
+ const [leaderboardFriends, setLeaderoardFriends] = useState([]);
+  const getFriendsStreaks = async (friends) => {
+    if (!token || !userID) return;
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/getLeaderboardFriends/${userID}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem('token'),
+        },
+         body: JSON.stringify({ friends }),
+      });
+
+        const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to retrieve friends leaderboard.');
+      }
+      setLeaderoardFriends(data);
+
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  //getting friends Streaks is dependant on friends being set
+  useEffect(() => {
+      getFriendsStreaks(friends);
+
+  }, [friends]);
+
+
+
+
+//retrieve and set streak information
 const [streak, setStreak] = useState(0);
 const [remainingThisWeek,setRemainingThisWeek] = useState(null);
 useEffect(() => {
+  if (!token || !userID) return; 
   const fetchStreakInfo = async () => {
-    const token = localStorage.getItem('token');
-    const decoded = jwtDecode(token);
-    const userID = decoded.userID;
     try {
       const response = await fetch(`${BACKEND_URL}/getStreakInfo/${userID}`, {
         method: 'GET',
@@ -26,16 +109,14 @@ useEffect(() => {
       });
 
       if (response.status === 404) {
-        // No goal set yet — handle gracefully
         setStreak(0);
         setRemainingThisWeek(null); 
-        return; // Stop further processing
+        return;
       }
 
       if (!response.ok) {
         throw new Error('Failed to fetch streak info');
       }
-
       const data = await response.json();
       setStreak(data.goal_streak); 
       setRemainingThisWeek(data.remainingWorkouts); 
@@ -46,17 +127,14 @@ useEffect(() => {
   };
 
   fetchStreakInfo();
-}, []);
-
-const [workoutType, setWorkoutType] = useState('');
-const [mood, setMood] = useState('');
-const [note, setNote] = useState('');
+}, [userID, token]);
 
 
+//get workout Dates for calendar
 const [workoutDates, setWorkoutDates] = useState([]);
 useEffect(() => {
+  if (!token) return; 
   const fetchWorkoutDates = async () => {
-    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${BACKEND_URL}/getWorkoutDates`, {
         method: 'GET',
@@ -78,13 +156,13 @@ useEffect(() => {
   };
 
   fetchWorkoutDates();
-}, []);
+}, [token]);
 
 
+//retrieve recently logged workouts
 const [recentWorkouts, setRecentWorkouts] = useState([]);
 useEffect(() => {
   const fetchRecentWorkouts = async () => {
-    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${BACKEND_URL}/recentWorkouts`, {
         method: 'GET',
@@ -104,18 +182,20 @@ useEffect(() => {
       alert(error.message);
     }
   };
-
   fetchRecentWorkouts();
-}, []);
+}, [token]);
 
 
-
-
+//submit logged workouts from form to backend
+const [workoutType, setWorkoutType] = useState('');
+const [mood, setMood] = useState('');
+const [note, setNote] = useState('');
 const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem('token');
-
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     if (!workoutType) {
       alert('Workout type is required');
       return;
@@ -141,8 +221,6 @@ const handleSubmit = async (e) => {
       }
   
       alert('Workout logged successfully!');
-  
-      // Clear form after submission
       setWorkoutType('');
       setMood('');
       setNote('');
@@ -153,28 +231,23 @@ const handleSubmit = async (e) => {
     }
   };
 
-const [username, setUsername] = useState(null);
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      setUsername(decodedToken.username);
-    } 
-    else {
-      navigate('/login');
-    }
-  }, []);
 
+  //remove token upon logging out
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove token from local storage
-    navigate('/'); // Redirect to landing page
+    localStorage.removeItem('token'); 
+    navigate('/');
   };
+
+
 
 
 
     return (
       <div>
         <header>
+        <Link to="/Dashboard">
+            <img src="/fitbuddyLogo.png" alt="Fitbuddy" style={{ width: '100px', height: 'auto' }} />
+          </Link>
           <nav>
             <ul>
               <li><Link to="/UserProfile">Profile</Link></li>
@@ -185,13 +258,35 @@ const [username, setUsername] = useState(null);
           <hr></hr>
         </header>
         <h1>Welcome, {username}</h1>
-
-          <p className='streak-labels'><strong>{streak}</strong> week(s)🔥🔥🔥 (Updates at the end of week)</p>
+        <div className='lift-cards-container' id='streak-container'>
+        <div className = 'lift-card'>
+        <p className='streak-labels'>Current Streak: <strong><big>{streak}</big></strong> week(s) (Updates 1x a week)</p>
+          <p style={{ fontSize: '2rem' }}>{'🔥'.repeat(streak)}</p>
           {remainingThisWeek === null ? (
               <p className='streak-labels'>Set a goal in your <Link to="/userProfile">profile</Link> to start tracking your streak!</p>
             ) : (
-              <p className='streak-labels'>Log <strong>{remainingThisWeek}</strong> more workouts this week to add to the streak!</p>
+              <p className='streak-labels'>Log <strong><big>{remainingThisWeek}</big></strong> more workouts this week to add to the streak!</p>
             )}
+          </div>
+          <div className = 'lift-card'>
+        <h3>Streak Leaderboard</h3>
+                {friends.length === 0 ? (
+                <p>No friends found.</p>
+              ) : (
+                <ul className="friend-list">
+                {leaderboardFriends.map((friend, index) => (
+                  <li key={friend.userID} className="friend-item">
+                    <span className="ranking">{index + 1}.</span>
+                    <Link to={`/FriendProfile/${friend.userID}`} className="item-list" id='streak-names'>
+                      {friend.username}
+                    </Link>
+                    <span>{friend.goal_streak} Weeks 🔥</span>
+                  </li>
+                  ))}
+                </ul>
+              )}
+        </div>
+          </div>
         <div className="card-container">
         <h2>Workout Calendar</h2>
         <WorkoutCalendar workoutDates={workoutDates} />
@@ -263,9 +358,7 @@ const [username, setUsername] = useState(null);
   )}
     </div>
 
-    <div className="card-container">
-        <h2>Friend Activity</h2>
-    </div>
+
       </div>
     );
     };

@@ -92,7 +92,6 @@ const authenticateToken = (req, res, next) => {
   app.post('/friendRequest', async (req, res) => {
     try {
       const { senderId, receiverId } = req.body;
-      console.log(senderId, receiverId);
       if (senderId === receiverId) {
         return res.status(400).json({ message: 'You cannot send a friend request to yourself' });
       }
@@ -283,7 +282,6 @@ app.get('/friendslist/:userId', (req, res) => {
   app.post('/setGoal', authenticateToken,(req, res) => {
     const { frequency } = req.body;
     const userID = req.user.userID;
-    console.log(frequency, userID);
   
     if (!frequency || frequency < 1 || frequency > 7) {
       return res.status(400).json({ error: 'Invalid frequency' });
@@ -360,8 +358,6 @@ app.get('/friendslist/:userId', (req, res) => {
 
       const lastUpdatedDate = new Date(lastUpdated);
       const isSameWeek = getISOWeek(lastUpdatedDate) === getISOWeek(today); 
-
-      // console.log(`lastUpdated: ${lastUpdated}, today: ${today}, isSameWeek: ${isSameWeek}`);
 
       if (!isSameWeek) {
       const [workoutsLastWeek] = await db.promise().query(
@@ -470,75 +466,89 @@ app.get('/friendslist/:userId', (req, res) => {
     );
   });
 
-  app.get('/getLiftRankings', authenticateToken, (req, res) => {  // Remove async
+ 
+// get rankings for each lift among friends
+  app.get('/getLiftRankings', authenticateToken, (req, res) => {
     const { friendID } = req.query;
     const userID = req.user.userID;
-    
+  
     const query = `
-   SELECT 
-      friend.userID,
-      friend.username,
-      friend_lifts.bench,
-      CASE 
-        WHEN friend_lifts.bench IS NULL THEN NULL
-        ELSE (
-          SELECT COUNT(*) + 1 
-          FROM profile_lifts pl
-          JOIN users u ON pl.userID = u.userID
-          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.bench > friend_lifts.bench AND pl.bench IS NOT NULL
-        )
-      END AS bench_rank,
-      
-      friend_lifts.squat,
-      CASE 
-        WHEN friend_lifts.squat IS NULL THEN NULL
-        ELSE (
-          SELECT COUNT(*) + 1 
-          FROM profile_lifts pl
-          JOIN users u ON pl.userID = u.userID
-          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.squat > friend_lifts.squat AND pl.squat IS NOT NULL
-        )
-      END AS squat_rank,
-
-      friend_lifts.deadlift,
-      CASE 
-        WHEN friend_lifts.deadlift IS NULL THEN NULL
-        ELSE (
-          SELECT COUNT(*) + 1 
-          FROM profile_lifts pl
-          JOIN users u ON pl.userID = u.userID
-          JOIN friendships f ON (f.userID1 = ? AND f.userID2 = u.userID) OR (f.userID2 = ? AND f.userID1 = u.userID)
-          WHERE pl.deadlift > friend_lifts.deadlift AND pl.deadlift IS NOT NULL
-        )
-      END AS deadlift_rank
-
-    FROM 
-      users friend
-    JOIN 
-      profile_lifts friend_lifts ON friend.userID = friend_lifts.userID
-    JOIN 
-      friendships f ON (f.userID1 = ? AND f.userID2 = friend.userID) OR (f.userID2 = ? AND f.userID1 = friend.userID)
-    WHERE 
-      friend.userID = ?;
+      SELECT 
+        friend.userID,
+        friend.username,
+        friend_lifts.bench,
+        CASE 
+          WHEN friend_lifts.bench IS NULL THEN NULL
+          ELSE (
+            SELECT COUNT(*) + 1 
+            FROM profile_lifts pl
+            JOIN users u ON pl.userID = u.userID
+            LEFT JOIN friendships f ON 
+              (f.userID1 = ? AND f.userID2 = u.userID) OR 
+              (f.userID2 = ? AND f.userID1 = u.userID)
+            WHERE 
+              (u.userID = ? OR f.userID1 IS NOT NULL) AND
+              pl.bench > friend_lifts.bench AND pl.bench IS NOT NULL
+          )
+        END AS bench_rank,
+  
+        friend_lifts.squat,
+        CASE 
+          WHEN friend_lifts.squat IS NULL THEN NULL
+          ELSE (
+            SELECT COUNT(*) + 1 
+            FROM profile_lifts pl
+            JOIN users u ON pl.userID = u.userID
+            LEFT JOIN friendships f ON 
+              (f.userID1 = ? AND f.userID2 = u.userID) OR 
+              (f.userID2 = ? AND f.userID1 = u.userID)
+            WHERE 
+              (u.userID = ? OR f.userID1 IS NOT NULL) AND
+              pl.squat > friend_lifts.squat AND pl.squat IS NOT NULL
+          )
+        END AS squat_rank,
+  
+        friend_lifts.deadlift,
+        CASE 
+          WHEN friend_lifts.deadlift IS NULL THEN NULL
+          ELSE (
+            SELECT COUNT(*) + 1 
+            FROM profile_lifts pl
+            JOIN users u ON pl.userID = u.userID
+            LEFT JOIN friendships f ON 
+              (f.userID1 = ? AND f.userID2 = u.userID) OR 
+              (f.userID2 = ? AND f.userID1 = u.userID)
+            WHERE 
+              (u.userID = ? OR f.userID1 IS NOT NULL) AND
+              pl.deadlift > friend_lifts.deadlift AND pl.deadlift IS NOT NULL
+          )
+        END AS deadlift_rank
+  
+      FROM 
+        users friend
+      JOIN 
+        profile_lifts friend_lifts ON friend.userID = friend_lifts.userID
+      LEFT JOIN 
+        friendships f ON 
+          (f.userID1 = ? AND f.userID2 = friend.userID) OR 
+          (f.userID2 = ? AND f.userID1 = friend.userID)
+      WHERE 
+        friend.userID = ?;
     `;
-    
+  
     db.query(
       query, 
       [
-        userID, userID,
-        userID, userID,
-        userID, userID,
-        userID, userID,
-        friendID
+        userID, userID, userID, 
+        userID, userID, userID, 
+        userID, userID, userID, 
+        userID, userID, friendID
       ],
       (error, results) => {
         if (error) {
           console.error('Error fetching rankings:', error);
           return res.status(500).json({ message: 'Error fetching rankings' });
         }
-        console.log(results[0]);
         res.json(results[0] || {});
       }
     );
@@ -601,7 +611,6 @@ app.get('/friendslist/:userId', (req, res) => {
 
   app.get('/getBio/:userID', (req, res) => {
     const { userID } = req.params;
-    console.log(userID);
   
     try {
   
@@ -621,3 +630,34 @@ app.get('/friendslist/:userId', (req, res) => {
       return res.status(401).json({ message: 'Invalid token' });
     }
   });
+
+
+// Endpoint to get leaderboard friends based on streak
+app.post('/getLeaderboardFriends/:userID', (req, res) => {
+  const { userID } = req.params; 
+  const { friends } = req.body;
+
+  const friendIDs = friends.map(friend => friend.userID);
+  const userIDs = friendIDs.concat(parseInt(userID));
+
+  if (!userID || !friends) {
+    return res.status(400).json({ message: 'Invalid userID or friends list' });
+  }
+
+  const sql = `
+    SELECT u.username, g.goal_streak, u.userID
+    FROM user_goals g
+    JOIN users u ON g.userID = u.userID
+    WHERE g.userID IN (?) AND g.goal_streak > 0
+    ORDER BY g.goal_streak DESC
+    LIMIT 5;
+  `;
+
+  db.query(sql, [userIDs],  (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+    res.json(results);
+  });
+});

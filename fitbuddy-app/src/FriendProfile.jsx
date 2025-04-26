@@ -119,6 +119,9 @@ const FriendProfile = () => {
 
   return (
     <div>
+        <Link to="/Dashboard">
+            <img src="/fitbuddyLogo.png" alt="Fitbuddy" style={{ width: '100px', height: 'auto' }} />
+          </Link>
           <nav>
             <ul>
             <li><Link to="/Dashboard">Home</Link></li>
@@ -127,7 +130,7 @@ const FriendProfile = () => {
             </ul>
           </nav>
           <hr></hr>
-      <h2>{profile.username}'s Profile</h2>
+      <h2 id='profile-name'>You are viewing {profile.username}'s Profile</h2>
       <div className="card-container">
         <h2>Bio</h2>
         <p>{bio || 'No bio set.'}</p>
