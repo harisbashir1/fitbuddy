@@ -269,7 +269,7 @@ const handleSubmit = async (e) => {
             )}
           </div>
           <div className = 'lift-card'>
-        <h3>Streak Leaderboard</h3>
+        <h3>Friend Leaderboard</h3>
                 {friends.length === 0 ? (
                 <p>No friends found.</p>
               ) : (
