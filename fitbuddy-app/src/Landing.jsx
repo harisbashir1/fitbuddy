@@ -8,7 +8,7 @@ const Landing = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/dashboard');  // Redirect to the dashboard if logged in
+      navigate('/dashboard');
     }
   }, [navigate]);
   

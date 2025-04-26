@@ -89,6 +89,8 @@ const authenticateToken = (req, res, next) => {
     });
   };
 
+
+  //send friend requests
   app.post('/friendRequest', async (req, res) => {
     try {
       const { senderId, receiverId } = req.body;
@@ -107,6 +109,8 @@ const authenticateToken = (req, res, next) => {
     }
   });
 
+
+  //get incoming friend requests 
   app.get('/friendRequests/:userId', (req, res) => {
     const { userId } = req.params;
   
@@ -129,8 +133,6 @@ const authenticateToken = (req, res, next) => {
   // Reject Friend Request
 app.post('/rejectFriendRequest', (req, res) => {
   const { senderId, receiverId } = req.body;
-
-  // Update friend request status to 'rejected'
   db.query(
     'UPDATE friend_requests SET status = "rejected" WHERE sender_id = ? AND receiver_id = ?',
     [senderId, receiverId],
@@ -554,6 +556,7 @@ app.get('/friendslist/:userId', (req, res) => {
     );
   });
 
+  //get 10 recent workouts for user
   app.get('/recentWorkouts', authenticateToken, (req, res) => {
     const userID = req.user.userID;
   
@@ -592,6 +595,8 @@ app.get('/friendslist/:userId', (req, res) => {
     );
   });
 
+
+  //set bio in profile
   app.post('/setBio', authenticateToken, (req, res) => {
     const userID = req.user.userID;
     const { bio } = req.body;
@@ -609,6 +614,7 @@ app.get('/friendslist/:userId', (req, res) => {
     }
   });
 
+  //retrieve specific users bio
   app.get('/getBio/:userID', (req, res) => {
     const { userID } = req.params;
   
@@ -632,7 +638,7 @@ app.get('/friendslist/:userId', (req, res) => {
   });
 
 
-// Endpoint to get leaderboard friends based on streak
+// Endpoint to get 5 friends with longest streaks (including self)
 app.post('/getLeaderboardFriends/:userID', (req, res) => {
   const { userID } = req.params; 
   const { friends } = req.body;

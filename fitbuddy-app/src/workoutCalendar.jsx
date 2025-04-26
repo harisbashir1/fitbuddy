@@ -18,7 +18,7 @@ const WorkoutCalendar = ({ workoutDates }) => {
       values={values}
       classForValue={value => {
         if (!value) return 'color-empty';
-        return 'color-github-4'; // Adjust intensity if needed
+        return 'color-github-3';
       }}
       tooltipDataAttrs={value => ({
         

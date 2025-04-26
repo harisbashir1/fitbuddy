@@ -3,16 +3,13 @@ import WorkoutCalendar from './workoutCalendar';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 
-
-
 const FriendProfile = () => {
   const BACKEND_URL = "http://localhost:5051";
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  //fetch and set profile for visited link
   const { friendID } = useParams();
   const [profile, setProfile] = useState(null);
-  
-
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -24,7 +21,7 @@ const FriendProfile = () => {
       .catch(err => console.error(err));
   }, [friendID]);
 
-
+  //get workout dates for calendar
   const [workoutDates, setWorkoutDates] = useState([]);
   useEffect(() => {
     const fetchWorkoutDates = async () => {
@@ -53,6 +50,7 @@ const FriendProfile = () => {
   }, [navigate]);
 
 
+  //get lift rankings among friends
   const [liftRankings, setLiftRankings] = useState(null);
 
     useEffect(() => {
@@ -80,8 +78,8 @@ const FriendProfile = () => {
         fetchLiftRankings();
     }, []);
 
+    //set bio
     const [bio, setBio] = useState('');
-
     useEffect(() => {
       const fetchBio = async () => {
         try {
@@ -101,21 +99,11 @@ const FriendProfile = () => {
         fetchBio();
       }
     }, [friendID]);
-
-
-
-
-
-
-
-
-
+  
 
   if (!profile) {
     return <p>Loading profile...</p>;
   }
-
-
 
   return (
     <div>

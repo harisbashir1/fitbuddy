@@ -8,7 +8,7 @@ const [username, setUsername] = useState(null);
 const [userID, setUserID] = useState(null);
 const BACKEND_URL = "http://localhost:5051"
 
-
+//get friend requests
 const [incomingFriendRequests, setIncomingFriendRequests] = useState([]);
 const fetchIncomingFriendRequests = () => {
   if (userID) {
@@ -22,11 +22,12 @@ const fetchIncomingFriendRequests = () => {
       .catch((error) => console.error('Error fetching friend requests:', error));
   }
 };
-
 useEffect(() => {
   fetchIncomingFriendRequests();
 }, [userID]);
 
+
+  //send friend Request
   const handleSendFriendRequest = async (receiverId) => {
     const requestBody = {
       senderId: userID,
@@ -53,7 +54,7 @@ useEffect(() => {
     }
   };
 
-
+  //accept friend request
   const handleAcceptFriendRequest = async (requestId) => {
     const requestBody = {
       senderId: requestId,
@@ -94,7 +95,7 @@ useEffect(() => {
     }
   };
 
-
+  //reject friend request
   const handleRejectFriendRequest = async (requestId) => {
     const requestBody = {
       senderId: requestId,
@@ -123,6 +124,7 @@ useEffect(() => {
     }
   };
 
+//for searching users and displaying
 const [searchUsername, setSearchUsername] = useState('');
 const [userSearchResults, setUserSearchResults] = useState([]);
 const searchUsers = async() => {
